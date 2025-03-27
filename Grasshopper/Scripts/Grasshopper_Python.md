@@ -1,6 +1,146 @@
-# Grasshopper Python Scripting Guide
+# Prompt-Optimized Instructions for Stable Grasshopper Python Components
 
-A comprehensive guide for creating and working with Python components in Grasshopper.
+This guide provides a concise, optimized approach to creating reliable Python script components in Grasshopper, followed by comprehensive reference material.
+
+## Quick Start Guide
+
+### Core Structure Pattern (Direct Script)
+```python
+"""Component description"""
+import rhinoscriptsyntax as rs
+import Rhino.Geometry as rg
+
+# 1. Initialize outputs
+result1 = None
+result2 = None
+
+try:
+    # 2. Validate inputs with defaults
+    if input1 is None:
+        raise ValueError("Input required")
+    input2 = default_value if input2 is None else input2
+    
+    # 3. Convert GUIDs to geometry if needed
+    geometry = rs.coercecurve(input1)
+    if geometry is None:
+        raise ValueError("Invalid geometry")
+    
+    # 4. Main logic - use Rhino/Grasshopper functions when possible
+    # ...processing...
+    
+    # 5. Assign results
+    result1 = processed_data
+    
+except Exception as e:
+    import Rhino
+    Rhino.RhinoApp.WriteLine(f"Error: {str(e)}")
+    # Reset outputs on error
+    result1 = None
+    result2 = None
+```
+
+### Essential Rules
+
+1. **Structure & Naming**
+   - Use descriptive parameter names and variables
+   - Initialize ALL outputs at start
+   - Right-click parameters to set human-readable names and tooltips
+   - Use the direct script approach consistently
+
+2. **Input Handling**
+   - Always check for `None` values
+   - Provide sensible defaults
+   - Convert types safely: `count = int(count) if count is not None else 10`
+   - Use Type Hints for automatic conversions (right-click parameter → Type Hint)
+   - Mark critical inputs as Required (right-click → Required)
+   - Use list comprehensions for processing multiple inputs: `points = [rs.coerce3dpoint(pt) for pt in point_list]`
+
+3. **GUID Conversion**
+   - Always convert GUIDs to geometry: `curve = rs.coercecurve(curve_guid)`
+   - Use Type Hint of "ghdoc Object" for parameters that need GUID conversion
+   - Always validate conversion results: `if curve_obj is None: raise ValueError("Invalid curve")`
+   - Handle type conversion in a consistent way
+
+4. **Data Tree Access**
+   - Set appropriate Parameter Access (Item, List, or Tree)
+   - Check type before accessing:
+     ```python
+     if isinstance(x, Grasshopper.DataTree[object]):
+         for path in x.Paths:
+             for item in x.Branch(path):
+                 # Process item
+     ```
+
+5. **Error Handling**
+   - Wrap main logic in try/except
+   - Report errors to console with descriptive messages
+   - Return initialized outputs even on error
+   - Use clear, descriptive error messages: `raise ValueError("Invalid input")`
+
+6. **Code Efficiency**
+   - Use Rhino/Grasshopper built-in functions instead of custom logic
+   - Keep code short and focused
+   - Use list comprehensions for concise operations
+   - Leverage Rhino.Geometry namespace for geometric operations
+
+### Component Structure Approaches
+
+There are several ways to structure Grasshopper Python components:
+
+1. **Direct Assignment (Recommended)**
+   - Process inputs and assign directly to output variables
+   - Simplest approach and most straightforward
+   - Example: `a = process_data(x, y)`
+
+2. **Main Function with Global Variables**
+   - Define a main() function that processes inputs and sets global output variables
+   - Used in more complex components with multiple helper functions
+   - Example: 
+   ```python
+   def main():
+       global a, b
+       # Process inputs
+       a = result1
+       b = result2
+   
+   main()
+   ```
+
+3. **Object-Oriented Approach**
+   - Create classes to encapsulate functionality
+   - Use a main function to orchestrate
+   - Best for complex components with many operations
+   - Example:
+   ```python
+   class Processor:
+       def __init__(self, input1, input2):
+           self.input1 = input1
+           self.input2 = input2
+           
+       def process(self):
+           # Processing logic
+           return result
+   
+   processor = Processor(x, y)
+   a = processor.process()
+   ```
+
+4. **RunScript Function (Legacy)**
+   - Wrap all code in a RunScript function that takes inputs and returns outputs
+   - Used in older components
+   - Not recommended for new components
+
+### Common Pitfalls to Avoid
+
+1. **Name Conflicts**: Don't use Python built-ins as variable names (`list`, `range`, `str`)
+2. **Type Safety**: Don't assume input types, use safe conversion patterns
+3. **Missing Validation**: Don't skip input validation, don't assume inputs are connected
+4. **GUID Handling**: Don't use GUID properties directly, always convert first
+5. **Performance Issues**: Toggle off unused "out" parameter, use list comprehensions
+
+---
+
+# Comprehensive Grasshopper Python Scripting Guide
 
 ## Table of Contents
 - [Basic Setup](#basic-setup)
